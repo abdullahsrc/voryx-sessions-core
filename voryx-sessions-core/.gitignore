@@ -1,0 +1,9 @@
+node_modules/
+dist/
+build/
+target/
+*.node
+native/voryx-crypto-wasm/pkg/
+.env
+.env.*
+.local/

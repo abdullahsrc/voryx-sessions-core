@@ -1,0 +1,21 @@
+{
+  "name": "voryx-sessions-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit --pretty false",
+    "native:build": "cd native/voryx-crypto && npx -y -p @napi-rs/cli napi build --release --platform --output-dir ."
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.16.3",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/express": "4.17.21",
+    "@types/node": "20.19.27",
+    "@types/pg": "^8.15.5",
+    "typescript": "5.6.3"
+  }
+}
