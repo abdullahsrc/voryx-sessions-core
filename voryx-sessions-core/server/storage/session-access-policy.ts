@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "crypto";
 import type { Session } from "@shared/schema";
-import { computeSessionSenderScopeId } from "@shared/sender-scope";
 import { deriveProofHash } from "../crypto-primitives";
+import { computeSessionSenderScopeId } from "./session-sender-scope";
 
 const BOX1_PUBLIC_KEY_BYTES = 32;
 const BOX1_NONCE_BYTES = 24;

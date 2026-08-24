@@ -1,8 +1,8 @@
 import { randomBytes } from "crypto";
 import type { ChatMessage } from "@shared/schema";
-import { computeSessionSenderScopeId } from "@shared/sender-scope";
 import { deriveOpaqueIndex } from "../crypto-primitives";
 import { buildOpaqueKeyReputationIndexScoped } from "./key-reputation-policy";
+import { computeSessionSenderScopeId } from "./session-sender-scope";
 
 export const VALID_DISAPPEAR_AFTER_READ_SECONDS = new Set<number>([15, 30, 60, 120, 300, 600, 900, 1800, 3600]);
 export const VALID_DISAPPEAR_AFTER_SEND_SECONDS = new Set<number>([15, 30, 60, 120, 300, 600, 900, 1800, 3600]);

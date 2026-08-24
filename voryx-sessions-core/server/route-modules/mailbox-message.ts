@@ -445,7 +445,7 @@ export function registerMailboxMessageRoutes(app: Express, deps: RegisterMailbox
         const messageId = String(req.body?.messageId || "").trim();
         if (!messageId) return res.status(400).json({ success: false, error: "messageId is required" });
         const message = await deps.storage.getMessageById(messageId);
-        if (!message || message.sessionId !== req.params.id) return res.status(404).json({ success: false, error: "Message not found" });
+        if (!message || message.sessionId !== auth.sessionId) return res.status(404).json({ success: false, error: "Message not found" });
         const ttl = Number(message.disappearAfterSeconds || 0);
         if (ttl > 0) {
           const deleteAt = Date.now() + ttl * 1000;

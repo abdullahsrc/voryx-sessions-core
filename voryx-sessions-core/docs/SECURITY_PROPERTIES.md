@@ -55,11 +55,14 @@ Selected cryptographic operations are delegated to Rust.
 
 The TypeScript layer throws when the required native function is unavailable or when returned output does not match the expected shape. It does not silently switch to a second cryptographic implementation for these operations.
 
+Session-local sender scope identifiers are derived through the native, domain-separated SHA-256 opaque-index operation. They use the `ss2_` format; deployments with persisted `ss1_` sender peer IDs must migrate those IDs before enabling this version.
+
 Relevant code:
 
 - `server/native/crypto-native.ts`
 - `server/crypto-primitives.ts`
 - `server/crypto-canonical.ts`
+- `server/storage/session-sender-scope.ts`
 - `native/voryx-crypto/src/lib.rs`
 
 ## P6 — Timing-safe comparison on selected values

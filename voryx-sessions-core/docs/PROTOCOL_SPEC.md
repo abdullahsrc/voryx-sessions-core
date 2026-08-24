@@ -97,6 +97,8 @@ The included boundary exposes operations for:
 
 The TypeScript wrappers reject the operation when the expected native result is unavailable or malformed.
 
+Session-local sender scope identifiers use the native, domain-separated SHA-256 opaque-index operation and the `ss2_` format. This identifier is pseudonymous transport metadata, not a secret; deployments with persisted `ss1_` peer IDs must migrate those records before enabling this format.
+
 Relevant code:
 
 - `server/native/crypto-native.ts`
