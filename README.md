@@ -1,12 +1,12 @@
 # voryx-sessions-core
 
-Selected source from Voryx Sessions.
+Selected implementation from Voryx Sessions, published so the security-sensitive parts of the project can be inspected without publishing the full application.
 
-This repository exposes a small part of the implementation behind signed request handling, session-scoped authorization, mailbox capabilities, native cryptographic operations, replay state, and deletion lifecycle handling.
+The repository focuses on signed request handling, session-scoped authorization, mailbox capabilities, replay state, selected native cryptographic operations, and deletion lifecycle code. It keeps the original module boundaries where practical.
 
-It is not the complete Voryx Sessions application. The UI, server bootstrap, deployment configuration, transport stack, and most persistence code are intentionally not included.
+This is not a standalone Sessions server. The UI, server bootstrap, deployment configuration, transport stack, and most persistence code are intentionally outside this repository.
 
-## Included
+## What is here
 
 ```text
 server/
@@ -44,48 +44,57 @@ docs/
   THREAT_MODEL.md
 ```
 
-Supporting files are included where the selected modules depend on them directly.
+A few supporting modules are included because the selected paths depend on them directly.
 
-## Boundaries
+## Request and authorization boundaries
 
-Guarded requests bind the signature to the request method, normalized path, body hash, timestamp, nonce, key ID, and public key.
+Guarded requests bind a signature to the request method, normalized path, body hash, timestamp, nonce, key ID, and public key.
 
-Nonces are consumed through an in-memory or PostgreSQL-backed store. The PostgreSQL path records scoped and key-global nonce state transactionally.
+Nonce consumption can use in-memory state or PostgreSQL. The PostgreSQL path records scoped and key-global nonce state transactionally so a valid signature alone is not enough to replay a request.
 
-Session membership and message access are separate checks. A participant can be a valid session member while still lacking access to message state that requires a grant.
+Session membership and message access are deliberately separate checks. A key can belong to a session without having the grant state required to read message state.
 
-Mailbox capabilities are scoped to session, plane, key identity, and lifetime, then checked against current authorization state when used.
+Mailbox capabilities are scoped to the session, plane, key identity, and lifetime, and are checked against current authorization state when used.
 
-Selected cryptographic operations cross a Rust boundary. The TypeScript wrappers fail closed when the required native implementation is unavailable or returns an invalid shape.
+## Native cryptography
 
-Deletion is represented as explicit lifecycle work across related stores rather than only hiding state at the route layer.
+Selected operations cross a Rust boundary rather than being reimplemented in the TypeScript layer. The published native source includes Ed25519, HKDF-SHA-256, AES-256-GCM, SHA-256, constant-time comparison, canonicalization, and key-derivation operations.
 
-## Native crypto
+The TypeScript wrappers fail closed when a required native function is unavailable or returns an unexpected shape. Prebuilt native binaries and generated WASM output are not committed.
 
-The native source included here contains selected Ed25519, HKDF-SHA-256, AES-256-GCM, SHA-256, constant-time comparison, canonicalization, and key-derivation operations.
+## Deletion
 
-Prebuilt native binaries and generated WASM output are not included.
+Deletion is treated as storage lifecycle work across related stores rather than only as hidden route or UI state. The repository includes the selected purge and lifecycle boundaries used for that work.
 
-## Build surface
+## Checking the source
 
-The TypeScript tree keeps the original module boundaries where practical.
+Install the Node dependencies and run the TypeScript check:
 
-This repository is a source snapshot, not a standalone Sessions server. It has no application entry point or deployment profile.
+```bash
+npm install
+npm run check
+```
 
-`npm run check` checks the published TypeScript surface after dependencies are installed. Native builds require a Rust toolchain and the N-API build tooling referenced by the package script.
+The native crates can be checked separately with a Rust toolchain:
 
-## Security notes
+```bash
+cargo check --manifest-path native/voryx-crypto/Cargo.toml
+cargo check --manifest-path native/voryx-crypto-wasm/Cargo.toml
+```
 
-The code is published to make specific implementation choices inspectable. It is not presented as an audit, a proof of the complete system, or a claim that unpublished modules inherit the same properties.
+`npm run native:build` builds the N-API module and requires the Rust toolchain plus the N-API tooling referenced by the package script.
 
-See:
+## Security documentation
 
-- [Protocol specification](docs/PROTOCOL_SPEC.md)
-- [Security properties](docs/SECURITY_PROPERTIES.md)
-- [Threat model](docs/THREAT_MODEL.md)
+The docs are intentionally narrower than the full Voryx Sessions design. They describe only claims that can be tied back to code published here.
 
-## Status
-
-Curated source from an active project.
+- [Protocol specification](docs/PROTOCOL_SPEC.md) — request, replay, session, mailbox, and crypto behavior represented by this snapshot
+- [Security properties](docs/SECURITY_PROPERTIES.md) — properties claimed for the included paths, with code references
+- [Threat model](docs/THREAT_MODEL.md) — attacker classes, trust boundaries, controls, residual risks, and explicit exclusions
+- [Security policy](SECURITY.md) — how to report a vulnerability without putting exploit details in a public issue
 
 No external cryptographic audit is claimed.
+
+## License
+
+The source in this repository is available under the [Apache License 2.0](LICENSE).
